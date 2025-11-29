@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Generate Share Link - SecureShare{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1>🔗 Generate Secure Sharing Link</h1>
+        <p>Create a secure link to share: <strong>{{ file.original_filename }}</strong></p>
+    </div>
+
+    <div class="card">
+        <form method="POST" action="{{ url_for('share.generate_share', file_id=file.id) }}">
+            <div class="form-group">
+                <label for="expiry_hours">Link Expiry</label>
+                <select id="expiry_hours" name="expiry_hours" required>
+                    <option value="">-- Select Expiry Time --</option>
+                    <option value="1">1 Hour</option>
+                    <option value="24">24 Hours (1 Day)</option>
+                    <option value="168">7 Days</option>
+                    <option value="720">30 Days</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="max_downloads">Maximum Downloads</label>
+                <input type="number" id="max_downloads" name="max_downloads" value="3" min="1" max="100" required>
+                <small>Number of times this file can be downloaded before the link expires</small>
+            </div>
+
+            <div class="form-group">
+                <label for="access_code">Access Code (Optional)</label>
+                <input type="text" id="access_code" name="access_code" placeholder="Leave empty for no access code">
+                <small>Require recipients to enter this code before downloading</small>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-large">Generate Sharing Link</button>
+        </form>
+    </div>
+
+    <div class="info-box">
+        <h3>ℹ️ Sharing Link Features</h3>
+        <ul>
+            <li>Secure, unguessable token-based links</li>
+            <li>Automatic expiry after specified time</li>
+            <li>Download limit enforcement</li>
+            <li>Optional access code protection</li>
+            <li>Automatic file decryption for recipients</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Register - SecureShare{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1>🔐 SecureShare</h1>
+            <p>Multi-Algorithm File Encryption & Verification</p>
+        </div>
+
+        <h2>Create Account</h2>
+
+        <form method="POST" action="{{ url_for('auth.register') }}">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required autofocus>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+
+            <div class="form-group">
+                <label for="confirm_password">Confirm Password</label>
+                <input type="password" id="confirm_password" name="confirm_password" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">Register</button>
+        </form>
+
+        <div class="auth-footer">
+            <p>Already have an account? <a href="{{ url_for('auth.login') }}">Login here</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

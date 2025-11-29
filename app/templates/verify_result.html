@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}Verification Result - SecureShare{% endblock %}
+
+{% block content %}
+<div class="container">
+    {% if success %}
+    <div class="success-header">
+        <div class="success-icon">✅</div>
+        <h1>File Verified Successfully!</h1>
+        <p>{{ 'Local file matches original record' if local_verification else 'No tampering detected' }}</p>
+    </div>
+
+    <div class="card success-card">
+        <h2>Verification Details</h2>
+
+        <div class="verification-result">
+            {% if local_verification %}
+            <div class="result-item success">
+                <span class="result-icon">✓</span>
+                <span class="result-text">Local file hash matches original record</span>
+            </div>
+            {% else %}
+            <div class="result-item success">
+                <span class="result-icon">✓</span>
+                <span class="result-text">Encrypted file hash matches</span>
+            </div>
+
+            <div class="result-item success">
+                <span class="result-icon">✓</span>
+                <span class="result-text">File decrypted successfully</span>
+            </div>
+
+            <div class="result-item success">
+                <span class="result-icon">✓</span>
+                <span class="result-text">Original file hash matches</span>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="details-grid">
+            <div class="detail-item">
+                <span class="detail-label">File Record:</span>
+                <span class="detail-value">{{ file.original_filename }}</span>
+            </div>
+
+            <div class="detail-item">
+                <span class="detail-label">Algorithm:</span>
+                <span class="detail-value"><span class="badge badge-{{ file.algorithm.lower() }}">{{ file.algorithm
+                        }}</span></span>
+            </div>
+
+            {% if local_verification %}
+            <div class="detail-item">
+                <span class="detail-label">Local File Hash:</span>
+                <span class="detail-value hash">{{ local_hash }}</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Original Hash:</span>
+                <span class="detail-value hash">{{ original_hash }}</span>
+            </div>
+            {% else %}
+            <div class="detail-item">
+                <span class="detail-label">Encrypted Hash:</span>
+                <span class="detail-value hash">{{ encrypted_hash }}</span>
+            </div>
+
+            <div class="detail-item">
+                <span class="detail-label">Decrypted Hash:</span>
+                <span class="detail-value hash">{{ decrypted_hash }}</span>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="success-message">
+            <p><strong>{{ details }}</strong></p>
+            <p>{{ 'The uploaded file is identical to the one originally encrypted.' if local_verification else 'This
+                file is authentic and has not been modified since encryption.' }}</p>
+        </div>
+    </div>
+
+    {% else %}
+    <div class="error-header">
+        <div class="error-icon">❌</div>
+        <h1>Verification Failed!</h1>
+        <p>{{ error }}</p>
+    </div>
+
+    <div class="card error-card">
+        <h2>Verification Details</h2>
+
+        <div class="details-grid">
+            <div class="detail-item">
+                <span class="detail-label">File Record:</span>
+                <span class="detail-value">{{ file.original_filename }}</span>
+            </div>
+
+            <div class="detail-item">
+                <span class="detail-label">Algorithm:</span>
+                <span class="detail-value"><span class="badge badge-{{ file.algorithm.lower() }}">{{ file.algorithm
+                        }}</span></span>
+            </div>
+
+            {% if local_verification %}
+            <div class="detail-item">
+                <span class="detail-label">Local File Hash:</span>
+                <span class="detail-value hash">{{ local_hash }}</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Original Hash:</span>
+                <span class="detail-value hash">{{ original_hash }}</span>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="error-message">
+            <p><strong>{{ details }}</strong></p>
+            <p>⚠️ This file may have been tampered with or corrupted. Do not trust its contents.</p>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="action-buttons">
+        <a href="{{ url_for('verify.verify') }}" class="btn btn-primary">Verify Another File</a>
+        <a href="{{ url_for('files.my_files') }}" class="btn btn-secondary">Back to My Files</a>
+        <a href="{{ url_for('verify.verification_logs') }}" class="btn btn-outline">View Verification History</a>
+    </div>
+</div>
+{% endblock %}

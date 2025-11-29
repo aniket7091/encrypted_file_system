@@ -1,0 +1,240 @@
+{% extends "base.html" %}
+
+{% block title %}Performance Dashboard - SecureShare{% endblock %}
+
+{% block extra_css %}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1>📊 Performance Dashboard</h1>
+        <p>Algorithm comparison and performance metrics</p>
+    </div>
+
+    {% if algorithm_stats %}
+    <div class="stats-summary">
+        <div class="stat-card">
+            <h3>{{ total_files }}</h3>
+            <p>Total Files Encrypted</p>
+        </div>
+        <div class="stat-card">
+            <h3>{{ algorithm_stats | length }}</h3>
+            <p>Algorithms Used</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Algorithm Comparison Table</h2>
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Algorithm</th>
+                        <th>Files Encrypted</th>
+                        <th>Avg Encryption Time (ms)</th>
+                        <th>Avg Decryption Time (ms)</th>
+                        <th>Avg Size Overhead (%)</th>
+                        <th>Recommendation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for stat in algorithm_stats %}
+                    <tr>
+                        <td><span class="badge badge-{{ stat.algorithm.lower() }}">{{ stat.algorithm }}</span></td>
+                        <td>{{ stat.count }}</td>
+                        <td>{{ stat.avg_encryption_time }}</td>
+                        <td>{{ stat.avg_decryption_time if stat.avg_decryption_time > 0 else 'N/A' }}</td>
+                        <td>{{ stat.avg_overhead }}%</td>
+                        <td>
+                            {% if stat.algorithm == 'AES' %}
+                            ⭐ Best overall performance
+                            {% elif stat.algorithm == '3DES' %}
+                            ⚠️ Legacy compatibility
+                            {% elif stat.algorithm == 'BLOWFISH' %}
+                            ✓ Good for large files
+                            {% elif stat.algorithm == 'CHACHA20' %}
+                            ✓ Excellent for mobile
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="charts-grid">
+        <div class="card">
+            <h3>Encryption Time Comparison</h3>
+            <canvas id="encryptionChart"></canvas>
+        </div>
+
+        <div class="card">
+            <h3>Decryption Time Comparison</h3>
+            <canvas id="decryptionChart"></canvas>
+        </div>
+
+        <div class="card">
+            <h3>Size Overhead Comparison</h3>
+            <canvas id="overheadChart"></canvas>
+        </div>
+
+        <div class="card">
+            <h3>Files per Algorithm</h3>
+            <canvas id="distributionChart"></canvas>
+        </div>
+    </div>
+
+    <div class="recommendations">
+        <h2>Algorithm Recommendations</h2>
+        <div class="recommendation-grid">
+            <div class="recommendation-card">
+                <h3>🏆 AES-256-GCM</h3>
+                <p><strong>Best for:</strong> General purpose encryption</p>
+                <ul>
+                    <li>Industry standard</li>
+                    <li>Excellent performance</li>
+                    <li>Authenticated encryption</li>
+                    <li>Hardware acceleration support</li>
+                </ul>
+            </div>
+
+            <div class="recommendation-card">
+                <h3>⚡ ChaCha20</h3>
+                <p><strong>Best for:</strong> Mobile and low-power devices</p>
+                <ul>
+                    <li>Modern stream cipher</li>
+                    <li>Constant-time operations</li>
+                    <li>No hardware requirements</li>
+                    <li>Excellent on ARM processors</li>
+                </ul>
+            </div>
+
+            <div class="recommendation-card">
+                <h3>💪 Blowfish</h3>
+                <p><strong>Best for:</strong> Large file encryption</p>
+                <ul>
+                    <li>Fast symmetric cipher</li>
+                    <li>Good for bulk data</li>
+                    <li>Flexible key sizes</li>
+                    <li>Proven security record</li>
+                </ul>
+            </div>
+
+            <div class="recommendation-card">
+                <h3>🔧 3DES</h3>
+                <p><strong>Best for:</strong> Legacy system compatibility</p>
+                <ul>
+                    <li>Widely supported</li>
+                    <li>Backward compatible</li>
+                    <li>Slower performance</li>
+                    <li>Being phased out</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">📊</div>
+        <h2>No Performance Data Yet</h2>
+        <p>Encrypt some files to see performance statistics and algorithm comparisons.</p>
+        <a href="{{ url_for('files.encrypt') }}" class="btn btn-primary">Encrypt Your First File</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if algorithm_stats %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+    const algorithms = {{ algorithm_stats | map(attribute = 'algorithm') | list | tojson }};
+    const encryptionTimes = {{ algorithm_stats | map(attribute = 'avg_encryption_time') | list | tojson }};
+    const decryptionTimes = {{ algorithm_stats | map(attribute = 'avg_decryption_time') | list | tojson }};
+    const overheads = {{ algorithm_stats | map(attribute = 'avg_overhead') | list | tojson }};
+    const counts = {{ algorithm_stats | map(attribute = 'count') | list | tojson }};
+
+    const colors = {
+        'AES': '#4CAF50',
+        '3DES': '#FF9800',
+        'BLOWFISH': '#2196F3',
+        'CHACHA20': '#9C27B0'
+    };
+
+    const backgroundColors = algorithms.map(alg => colors[alg] || '#999');
+
+    // Encryption Time Chart
+    new Chart(document.getElementById('encryptionChart'), {
+        type: 'bar',
+        data: {
+            labels: algorithms,
+            datasets: [{
+                label: 'Avg Encryption Time (ms)',
+                data: encryptionTimes,
+                backgroundColor: backgroundColors
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+
+    // Decryption Time Chart
+    new Chart(document.getElementById('decryptionChart'), {
+        type: 'bar',
+        data: {
+            labels: algorithms,
+            datasets: [{
+                label: 'Avg Decryption Time (ms)',
+                data: decryptionTimes,
+                backgroundColor: backgroundColors
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+
+    // Overhead Chart
+    new Chart(document.getElementById('overheadChart'), {
+        type: 'bar',
+        data: {
+            labels: algorithms,
+            datasets: [{
+                label: 'Avg Size Overhead (%)',
+                data: overheads,
+                backgroundColor: backgroundColors
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+
+    // Distribution Chart
+    new Chart(document.getElementById('distributionChart'), {
+        type: 'doughnut',
+        data: {
+            labels: algorithms,
+            datasets: [{
+                data: counts,
+                backgroundColor: backgroundColors
+            }]
+        },
+        options: {
+            responsive: true
+        }
+    });
+</script>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Encryption Success - SecureShare{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="success-header">
+        <div class="success-icon">✅</div>
+        <h1>File Encrypted Successfully!</h1>
+    </div>
+
+    <div class="card">
+        <h2>Encryption Details</h2>
+
+        <div class="details-grid">
+            <div class="detail-item">
+                <span class="detail-label">Filename:</span>
+                <span class="detail-value">{{ file.original_filename }}</span>
+            </div>
+
+            <div class="detail-item">
+                <span class="detail-label">Algorithm:</span>
+                <span class="detail-value"><span class="badge badge-{{ file.algorithm.lower() }}">{{ file.algorithm
+                        }}</span></span>
+            </div>
+
+            <div class="detail-item">
+                <span class="detail-label">Original Size:</span>
+                <span class="detail-value">{{ (file.original_size_bytes / 1024) | round(2) }} KB</span>
+            </div>
+
+            <div class="detail-item">
+                <span class="detail-label">Encrypted Size:</span>
+                <span class="detail-value">{{ (file.encrypted_size_bytes / 1024) | round(2) }} KB</span>
+            </div>
+
+            <div class="detail-item">
+                <span class="detail-label">Size Overhead:</span>
+                <span class="detail-value">{{ overhead_percent }}%</span>
+            </div>
+
+            <div class="detail-item">
+                <span class="detail-label">Encryption Time:</span>
+                <span class="detail-value">{{ file.encryption_time_ms }} ms</span>
+            </div>
+
+            <div class="detail-item">
+                <span class="detail-label">Original Hash (SHA-256):</span>
+                <span class="detail-value hash">{{ file.original_hash_sha256 }}</span>
+            </div>
+
+            <div class="detail-item">
+                <span class="detail-label">Encrypted Hash (SHA-256):</span>
+                <span class="detail-value hash">{{ file.encrypted_hash_sha256 }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="action-buttons">
+        <a href="{{ url_for('files.download', file_id=file.id, file_type='encrypted') }}" class="btn btn-primary">
+            📥 Download Encrypted File
+        </a>
+        <a href="{{ url_for('share.generate_share', file_id=file.id) }}" class="btn btn-secondary">
+            🔗 Generate Sharing Link
+        </a>
+        <a href="{{ url_for('verify.verify') }}" class="btn btn-secondary">
+            ✅ Verify This File
+        </a>
+        <a href="{{ url_for('files.my_files') }}" class="btn btn-outline">
+            📂 Go to My Files
+        </a>
+    </div>
+</div>
+{% endblock %}

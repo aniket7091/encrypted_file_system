@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Verification Logs - SecureShare{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1>📋 Verification History</h1>
+        <p>View all file integrity verification logs</p>
+    </div>
+
+    {% if logs %}
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>File</th>
+                    <th>Algorithm</th>
+                    <th>Status</th>
+                    <th>Details</th>
+                    <th>Verified At</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log, file in logs %}
+                <tr>
+                    <td>{{ file.original_filename }}</td>
+                    <td><span class="badge badge-{{ file.algorithm.lower() }}">{{ file.algorithm }}</span></td>
+                    <td>
+                        {% if log.status == 'SUCCESS' %}
+                        <span class="badge badge-success">✓ Success</span>
+                        {% else %}
+                        <span class="badge badge-danger">✗ Failed</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ log.details[:100] }}{% if log.details|length > 100 %}...{% endif %}</td>
+                    <td>{{ log.verified_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <h2>No Verification Logs</h2>
+        <p>You haven't verified any files yet.</p>
+        <a href="{{ url_for('verify.verify') }}" class="btn btn-primary">Verify a File</a>
+    </div>
+    {% endif %}
+
+    <div class="action-buttons">
+        <a href="{{ url_for('verify.verify') }}" class="btn btn-primary">Verify New File</a>
+        <a href="{{ url_for('files.my_files') }}" class="btn btn-secondary">Back to My Files</a>
+    </div>
+</div>
+{% endblock %}

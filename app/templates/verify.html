@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Verify File - SecureShare{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1>✅ File Integrity Verification</h1>
+        <p>Verify encrypted files and detect tampering</p>
+    </div>
+
+    <div class="card">
+        <h2>Select File to Verify</h2>
+
+        {% if files %}
+        <form method="POST" action="{{ url_for('verify.verify') }}">
+            <div class="form-group">
+                <label for="file_id">Choose a file from your encrypted files:</label>
+                <select id="file_id" name="file_id" required>
+                    <option value="">-- Select File --</option>
+                    {% for file in files %}
+                    <option value="{{ file.id }}">
+                        {{ file.original_filename }} ({{ file.algorithm }}) - {{ file.created_at.strftime('%Y-%m-%d') }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-large">Verify File Integrity</button>
+        </form>
+        {% else %}
+        <div class="empty-state">
+            <p>You don't have any encrypted files to verify yet.</p>
+            <a href="{{ url_for('files.encrypt') }}" class="btn btn-primary">Encrypt a File</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="card">
+        <h2>Verify Local File</h2>
+        <p>Upload a local file to check if it matches the original encrypted record.</p>
+
+        {% if files %}
+        <form method="POST" action="{{ url_for('verify.verify_local') }}" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="local_file">Select Local File:</label>
+                <input type="file" id="local_file" name="local_file" required class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label for="file_id_local">Compare against (Original Record):</label>
+                <select id="file_id_local" name="file_id" required>
+                    <option value="">-- Select Original File Record --</option>
+                    {% for file in files %}
+                    <option value="{{ file.id }}">
+                        {{ file.original_filename }} ({{ file.algorithm }}) - {{ file.created_at.strftime('%Y-%m-%d') }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-secondary btn-large">Check Local File</button>
+        </form>
+        {% else %}
+        <div class="empty-state">
+            <p>You need to have encrypted files records to verify against.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="info-section">
+        <h2>How Verification Works</h2>
+        <div class="verification-steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h4>Encrypted File Hash Check</h4>
+                    <p>Computes SHA-256 hash of the encrypted file and compares with stored hash to detect tampering</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h4>Decryption</h4>
+                    <p>Decrypts the file using RSA-protected symmetric key</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h4>Original File Hash Check</h4>
+                    <p>Computes SHA-256 hash of decrypted data and compares with original file hash</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <h4>Verification Result</h4>
+                    <p>Reports success if all checks pass, or failure if tampering is detected</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-box">
+        <h3>ℹ️ What Gets Verified</h3>
+        <ul>
+            <li><strong>Encrypted File Integrity:</strong> Ensures the encrypted file hasn't been modified</li>
+            <li><strong>Decryption Correctness:</strong> Verifies the file can be decrypted successfully</li>
+            <li><strong>Original Data Integrity:</strong> Confirms decrypted data matches the original file</li>
+            <li><strong>Tamper Detection:</strong> Identifies any unauthorized modifications</li>
+        </ul>
+    </div>
+
+    {% if files %}
+    <div class="action-buttons">
+        <a href="{{ url_for('verify.verification_logs') }}" class="btn btn-outline">View Verification History</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

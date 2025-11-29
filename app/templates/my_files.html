@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}My Files - SecureShare{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1>📂 My Encrypted Files</h1>
+        <p>Manage your encrypted files</p>
+    </div>
+
+    {% if files %}
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Filename</th>
+                    <th>Algorithm</th>
+                    <th>Original Size</th>
+                    <th>Encrypted Size</th>
+                    <th>Encryption Time</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for file in files %}
+                <tr>
+                    <td>{{ file.original_filename }}</td>
+                    <td><span class="badge badge-{{ file.algorithm.lower() }}">{{ file.algorithm }}</span></td>
+                    <td>{{ (file.original_size_bytes / 1024) | round(2) }} KB</td>
+                    <td>{{ (file.encrypted_size_bytes / 1024) | round(2) }} KB</td>
+                    <td>{{ file.encryption_time_ms }} ms</td>
+                    <td>{{ file.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>
+                        <div class="action-buttons-inline">
+                            <form method="POST" action="{{ url_for('files.decrypt', file_id=file.id) }}"
+                                style="display: inline;">
+                                <button type="submit" class="btn btn-sm btn-primary" title="Decrypt and Download">
+                                    🔓 Decrypt
+                                </button>
+                            </form>
+                            <a href="{{ url_for('files.download', file_id=file.id, file_type='encrypted') }}"
+                                class="btn btn-sm btn-secondary" title="Download Encrypted">
+                                📥 Download
+                            </a>
+                            <a href="{{ url_for('share.generate_share', file_id=file.id) }}"
+                                class="btn btn-sm btn-secondary" title="Generate Share Link">
+                                🔗 Share
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">📭</div>
+        <h2>No Files Yet</h2>
+        <p>You haven't encrypted any files yet. Get started by encrypting your first file!</p>
+        <a href="{{ url_for('files.encrypt') }}" class="btn btn-primary">Encrypt Your First File</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

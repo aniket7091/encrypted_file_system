@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Share Link Generated - SecureShare{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="success-header">
+        <div class="success-icon">🔗</div>
+        <h1>Sharing Link Generated!</h1>
+    </div>
+
+    <div class="card">
+        <h2>Share This Link</h2>
+
+        <div class="share-link-box">
+            <input type="text" id="shareLink" value="{{ share_url }}" readonly>
+            <button onclick="copyLink()" class="btn btn-primary">Copy Link</button>
+        </div>
+
+        <div class="share-details">
+            <h3>Link Details</h3>
+            <ul>
+                <li><strong>File:</strong> {{ file.original_filename }}</li>
+                <li><strong>Expires:</strong> {{ expiry_datetime.strftime('%Y-%m-%d %H:%M UTC') }}</li>
+                <li><strong>Max Downloads:</strong> {{ max_downloads }}</li>
+                <li><strong>Access Code:</strong> {% if has_access_code %}Required{% else %}Not required{% endif %}</li>
+            </ul>
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Important:</strong> Save this link now! Once you leave this page, you'll need to go to "My
+            Shares" to find it again.
+        </div>
+    </div>
+
+    <div class="action-buttons">
+        <a href="{{ url_for('files.my_files') }}" class="btn btn-secondary">Back to My Files</a>
+        <a href="{{ url_for('share.my_shares') }}" class="btn btn-outline">View All Shares</a>
+    </div>
+</div>
+
+<script>
+    function copyLink() {
+        const linkInput = document.getElementById('shareLink');
+        linkInput.select();
+        linkInput.setSelectionRange(0, 99999); // For mobile devices
+        document.execCommand('copy');
+
+        const btn = event.target;
+        const originalText = btn.textContent;
+        btn.textContent = '✓ Copied!';
+        setTimeout(() => {
+            btn.textContent = originalText;
+        }, 2000);
+    }
+</script>
+{% endblock %}

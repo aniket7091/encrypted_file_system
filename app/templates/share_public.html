@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Shared File - SecureShare{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1>🔗 Shared File</h1>
+        <p>Someone has shared an encrypted file with you</p>
+    </div>
+
+    <div class="card">
+        <h2>File Information</h2>
+
+        <div class="file-info">
+            <div class="info-item">
+                <span class="info-label">Filename:</span>
+                <span class="info-value">{{ file.original_filename }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Size:</span>
+                <span class="info-value">{{ (file.original_size_bytes / 1024) | round(2) }} KB</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Encrypted with:</span>
+                <span class="info-value"><span class="badge badge-{{ file.algorithm.lower() }}">{{ file.algorithm
+                        }}</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Expires:</span>
+                <span class="info-value">{{ sharing_link.expiry_datetime.strftime('%Y-%m-%d %H:%M UTC') }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Downloads remaining:</span>
+                <span class="info-value">{{ sharing_link.max_downloads - sharing_link.download_count }}</span>
+            </div>
+        </div>
+
+        {% if requires_code %}
+        <form method="POST" action="{{ url_for('share.access_share', token=sharing_link.share_token) }}">
+            <div class="form-group">
+                <label for="access_code">Access Code Required</label>
+                <input type="text" id="access_code" name="access_code" placeholder="Enter access code" required
+                    autofocus>
+            </div>
+            <button type="submit" class="btn btn-primary btn-large">Download File</button>
+        </form>
+        {% else %}
+        <form method="POST" action="{{ url_for('share.access_share', token=sharing_link.share_token) }}">
+            <button type="submit" class="btn btn-primary btn-large">Download File</button>
+        </form>
+        {% endif %}
+    </div>
+
+    <div class="info-box">
+        <h3>ℹ️ About This Download</h3>
+        <ul>
+            <li>The file will be automatically decrypted before download</li>
+            <li>This is a secure, one-time sharing link</li>
+            <li>The link will expire after the specified time or download limit</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

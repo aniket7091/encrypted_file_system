@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - SecureShare{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1>Welcome, {{ session.get('username') }}! 👋</h1>
+        <p>Secure file encryption and sharing made easy</p>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">📁</div>
+            <div class="stat-info">
+                <h3>{{ total_files }}</h3>
+                <p>Encrypted Files</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">🔒</div>
+            <div class="stat-info">
+                <h3>4</h3>
+                <p>Algorithms Available</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">✓</div>
+            <div class="stat-info">
+                <h3>Secure</h3>
+                <p>Hybrid Encryption</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="quick-actions">
+        <h2>Quick Actions</h2>
+        <div class="action-grid">
+            <a href="{{ url_for('files.encrypt') }}" class="action-card">
+                <div class="action-icon">🔐</div>
+                <h3>Encrypt File</h3>
+                <p>Upload and encrypt a file with your choice of algorithm</p>
+            </a>
+
+            <a href="{{ url_for('files.my_files') }}" class="action-card">
+                <div class="action-icon">📂</div>
+                <h3>My Files</h3>
+                <p>View, decrypt, and manage your encrypted files</p>
+            </a>
+
+            <a href="{{ url_for('performance.performance') }}" class="action-card">
+                <div class="action-icon">📊</div>
+                <h3>Performance</h3>
+                <p>Compare algorithm performance and statistics</p>
+            </a>
+
+            <a href="{{ url_for('verify.verify') }}" class="action-card">
+                <div class="action-icon">✅</div>
+                <h3>Verify Files</h3>
+                <p>Check file integrity and detect tampering</p>
+            </a>
+        </div>
+    </div>
+
+    {% if recent_files %}
+    <div class="recent-files">
+        <h2>Recent Files</h2>
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Filename</th>
+                        <th>Algorithm</th>
+                        <th>Size</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for file in recent_files %}
+                    <tr>
+                        <td>{{ file.original_filename }}</td>
+                        <td><span class="badge badge-{{ file.algorithm.lower() }}">{{ file.algorithm }}</span></td>
+                        <td>{{ (file.original_size_bytes / 1024) | round(2) }} KB</td>
+                        <td>{{ file.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

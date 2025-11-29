@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Share Error - SecureShare{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="error-header">
+        <div class="error-icon">❌</div>
+        <h1>{{ error }}</h1>
+    </div>
+
+    <div class="card">
+        <p class="error-message">{{ message }}</p>
+    </div>
+
+    <div class="action-buttons">
+        <a href="{{ url_for('auth.index') }}" class="btn btn-primary">Go to Homepage</a>
+    </div>
+</div>
+{% endblock %}

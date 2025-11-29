@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}My Shares - SecureShare{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1>🔗 My Sharing Links</h1>
+        <p>Manage your shared files</p>
+    </div>
+
+    {% if sharing_links %}
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>File</th>
+                    <th>Share Token</th>
+                    <th>Expires</th>
+                    <th>Downloads</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for link in sharing_links %}
+                <tr>
+                    <td>{{ link.file.original_filename }}</td>
+                    <td><code>{{ link.share_token[:20] }}...</code></td>
+                    <td>{{ link.expiry_datetime.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>{{ link.download_count }} / {{ link.max_downloads }}</td>
+                    <td>
+                        {% if link.is_expired() %}
+                        <span class="badge badge-danger">Expired</span>
+                        {% elif link.is_download_limit_reached() %}
+                        <span class="badge badge-danger">Limit Reached</span>
+                        {% else %}
+                        <span class="badge badge-success">Active</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ link.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">🔗</div>
+        <h2>No Sharing Links</h2>
+        <p>You haven't created any sharing links yet.</p>
+        <a href="{{ url_for('files.my_files') }}" class="btn btn-primary">Go to My Files</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

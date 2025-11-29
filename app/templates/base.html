@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SecureShare{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+    {% if session.get('user_id') %}
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a href="{{ url_for('files.dashboard') }}">🔐 SecureShare</a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="{{ url_for('files.dashboard') }}">Dashboard</a></li>
+                <li><a href="{{ url_for('files.encrypt') }}">Encrypt File</a></li>
+                <li><a href="{{ url_for('files.my_files') }}">My Files</a></li>
+                <li><a href="{{ url_for('performance.performance') }}">Performance</a></li>
+                <li><a href="{{ url_for('verify.verify') }}">Verify</a></li>
+                <li class="nav-user">
+                    <span>{{ session.get('username') }}</span>
+                    <a href="{{ url_for('auth.logout') }}" class="btn-logout">Logout</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    {% endif %}
+
+    <main class="main-content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-messages">
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2025 SecureShare - Multi-Algorithm File Encryption & Verification System</p>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>

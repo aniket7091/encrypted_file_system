@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}Login - SecureShare{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1>🔐 SecureShare</h1>
+            <p>Multi-Algorithm File Encryption & Verification</p>
+        </div>
+
+        <h2>Login</h2>
+
+        <form method="POST" action="{{ url_for('auth.login') }}">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required autofocus>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">Login</button>
+        </form>
+
+        <div class="auth-footer">
+            <p>Don't have an account? <a href="{{ url_for('auth.register') }}">Register here</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}
